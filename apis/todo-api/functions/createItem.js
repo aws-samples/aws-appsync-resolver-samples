@@ -12,7 +12,7 @@ import { util } from '@aws-appsync/utils';
 export function request(ctx) {
   const { input: values } = ctx.arguments;
   const key = { id: util.autoId() };
-  const condition = { and: [{ id: { attributeExists: false } }] };
+  const condition = { id: { attributeExists: false } };
   console.log('--> create todo with requested values: ', values);
   return dynamodbPutRequest({ key, values, condition });
 }

@@ -7,9 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@aws-appsync/utils": "file:libs/aws-appsync-utils-0.1.0.tgz",
-    "eslint": "^8.25.0",
-    "@aws-appsync/eslint-plugin": "file:libs/aws-appsync-eslint-plugin-1.0.0.tgz"
+    "@aws-appsync/eslint-plugin": "^1.0.0",
+    "@aws-appsync/utils": "^1.0.0",
+    "eslint": "^8.25.0"
   },
   "repository": {
     "type": "git",

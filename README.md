@@ -1,17 +1,10 @@
-## My Project
+# AWS AppSync Resolver Samples
 
-TODO: Fill this README out!
+This repo contains samples showing how to use AppSync JavaScript resolvers and functions to connect to data sources and build GraphQL API. You can use these samples to help you quickly get started on your own projects.
 
-Be sure to:
+- Learn more about JavaScript support in AWS AppSync by visiting the [Resolver reference (JavaScript)](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-reference-js-version.html) documentation.
 
-* Change the title in this README
-* Edit your repository description on GitHub
+Each subdirectory contains additional installation and usage instructions.
 
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## License
-
+----
 This library is licensed under the MIT-0 License. See the LICENSE file.
-
