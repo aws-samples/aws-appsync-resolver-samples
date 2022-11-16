@@ -1,0 +1,15 @@
+{
+  "arguments": {
+    "id": "default",
+    "nextToken": "next",
+    "filter": { "title": { "ne": "something" } },
+    "input": {
+      "id": "default",
+      "title": "hello word",
+      "description": "a thing i need to do",
+      "something": null,
+      "blank": "",
+      "owner": "john"
+    }
+  }
+}
