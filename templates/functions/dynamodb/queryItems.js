@@ -6,9 +6,13 @@
 import { util } from '@aws-appsync/utils';
 
 export function request(ctx) {
-  const { id, first: limit = 20, after: nextToken, filter } = ctx.args;
-  const indexQuery = { id: { eq: id } };
-  return query({ query: indexQuery, limit, nextToken, filter });
+  // owner is the primary key used in this example
+  const { owner, first: limit = 20, after: nextToken, filter } = ctx.args;
+  // we prepare an expression that will return all items belonging to the owner
+  const indexQuery = { owner: { eq: owner } };
+  // the specific index we want to query
+  const index = 'owner-index';
+  return query({ query: indexQuery, index, limit, nextToken, filter });
 }
 
 export function response(ctx) {
