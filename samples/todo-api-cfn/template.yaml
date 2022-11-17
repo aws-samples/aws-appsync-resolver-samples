@@ -1,0 +1,783 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: An AppSync API with JavaScript resolvers with a DynamoDB data source
+Resources:
+  ApiF70053CD:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      AuthenticationType: API_KEY
+      Name: TodoAPIwithJs
+  ApiSchema510EECD7:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      Definition: |
+        input CreateTodoInput {
+          title: String
+          description: String
+          owner: String
+        }
+
+        input DeleteTodoInput {
+          id: ID!
+        }
+
+        type Mutation {
+          createTodo(input: CreateTodoInput!): Todo
+          updateTodo(input: UpdateTodoInput!): Todo
+          deleteTodo(input: DeleteTodoInput!): Todo
+        }
+
+        type Query {
+          getTodo(id: ID!): Todo
+          listTodos(filter: TableTodoFilterInput, limit: Int, nextToken: String): TodoConnection
+          queryTodosByOwnerIndex(owner: String!, first: Int, after: String): TodoConnection
+        }
+
+        type Subscription {
+          onCreateTodo(id: ID, title: String, description: String, owner: String): Todo @aws_subscribe(mutations: ["createTodo"])
+          onUpdateTodo(id: ID, title: String, description: String, owner: String): Todo @aws_subscribe(mutations: ["updateTodo"])
+          onDeleteTodo(id: ID, title: String, description: String, owner: String): Todo @aws_subscribe(mutations: ["deleteTodo"])
+        }
+
+        input TableBooleanFilterInput {
+          ne: Boolean
+          eq: Boolean
+        }
+
+        input TableFloatFilterInput {
+          ne: Float
+          eq: Float
+          le: Float
+          lt: Float
+          ge: Float
+          gt: Float
+          contains: Float
+          notContains: Float
+          between: [Float]
+        }
+
+        input TableIDFilterInput {
+          ne: ID
+          eq: ID
+          le: ID
+          lt: ID
+          ge: ID
+          gt: ID
+          contains: ID
+          notContains: ID
+          between: [ID]
+          beginsWith: ID
+        }
+
+        input TableIntFilterInput {
+          ne: Int
+          eq: Int
+          le: Int
+          lt: Int
+          ge: Int
+          gt: Int
+          contains: Int
+          notContains: Int
+          between: [Int]
+        }
+
+        input TableStringFilterInput {
+          ne: String
+          eq: String
+          le: String
+          lt: String
+          ge: String
+          gt: String
+          contains: String
+          notContains: String
+          between: [String]
+          beginsWith: String
+        }
+
+        input TableTodoFilterInput {
+          id: TableIDFilterInput
+          title: TableStringFilterInput
+          description: TableStringFilterInput
+          owner: TableStringFilterInput
+        }
+
+        type Todo {
+          id: ID!
+          title: String
+          description: String
+          owner: String
+        }
+
+        type TodoConnection {
+          items: [Todo]
+          nextToken: String
+        }
+
+        input UpdateTodoInput {
+          id: ID!
+          title: String
+          description: String
+          owner: String
+        }
+  ApiDefaultApiKeyF991C37B:
+    Type: AWS::AppSync::ApiKey
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+    DependsOn:
+      - ApiSchema510EECD7
+  ApitableServiceRole0D5FB338:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: appsync.amazonaws.com
+        Version: '2012-10-17'
+  ApitableServiceRoleDefaultPolicy3E188D7B:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - dynamodb:BatchGetItem
+              - dynamodb:BatchWriteItem
+              - dynamodb:ConditionCheckItem
+              - dynamodb:DeleteItem
+              - dynamodb:DescribeTable
+              - dynamodb:GetItem
+              - dynamodb:GetRecords
+              - dynamodb:GetShardIterator
+              - dynamodb:PutItem
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:UpdateItem
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - TodoTable585F1D6B
+                  - Arn
+              - Fn::Join:
+                  - ''
+                  - - Fn::GetAtt:
+                        - TodoTable585F1D6B
+                        - Arn
+                    - /index/*
+        Version: '2012-10-17'
+      PolicyName: ApitableServiceRoleDefaultPolicy3E188D7B
+      Roles:
+        - Ref: ApitableServiceRole0D5FB338
+  Apitable9F4D58B6:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      Name: table
+      Type: AMAZON_DYNAMODB
+      DynamoDBConfig:
+        AwsRegion:
+          Ref: AWS::Region
+        TableName:
+          Ref: TodoTable585F1D6B
+      ServiceRoleArn:
+        Fn::GetAtt:
+          - ApitableServiceRole0D5FB338
+          - Arn
+  ApitableCREATEITEMFunction64BB3F3D:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      DataSourceName: table
+      Name: CREATE_ITEM
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync function: creates a new item in a DynamoDB table.
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+
+        import { util } from '@aws-appsync/utils';
+
+        /**
+        * Creates a new item in a DynamoDB table
+        * @param ctx contextual information about the request
+        */
+        export function request(ctx) {
+          const { input: values } = ctx.arguments;
+          const key = { id: util.autoId() };
+          const condition = { and: [{ id: { attributeExists: false } }] };
+          console.log('--> create todo with requested values: ', values);
+          return dynamodbPutRequest({ key, values, condition });
+        }
+
+        /**
+        * Returns the result
+        * @param ctx contextual information about the request
+        */
+        export function response(ctx) {
+          const { error, result } = ctx;
+          if (error) {
+            return util.appendError(error.message, error.type, result);
+          }
+          return ctx.result;
+        }
+
+        /**
+        * Helper function to create a new item
+        * @returns a PutItem request
+        */
+        function dynamodbPutRequest({ key, values, condition: inCondObj }) {
+          const condition = JSON.parse(util.transform.toDynamoDBConditionExpression(inCondObj));
+          if (condition.expressionValues && !Object.keys(condition.expressionValues).length) {
+            delete condition.expressionValues;
+          }
+          return {
+            operation: 'PutItem',
+            key: util.dynamodb.toMapValues(key),
+            attributeValues: util.dynamodb.toMapValues(values),
+            condition,
+          };
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+      - Apitable9F4D58B6
+  ApitableUPDATEITEMFunctionAA45555C:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      DataSourceName: table
+      Name: UPDATE_ITEM
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync function: updates an item in a DynamoDB table.
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+
+        import { util } from '@aws-appsync/utils';
+
+        export function request(ctx) {
+          const {
+            input: { id, ...values },
+          } = ctx.args;
+          const condition = { id: { attributeExists: true } };
+          return dynamodbUpdateRequest({ key: { id }, values, condition });
+        }
+
+        export function response(ctx) {
+          const { error, result } = ctx;
+          if (error) {
+            return util.appendError(error.message, error.type, result);
+          }
+          return result;
+        }
+
+        function dynamodbUpdateRequest({ key, values, condition: inCondObj }) {
+          const sets = [];
+          const removes = [];
+          const expressionNames = {};
+          const expValues = {};
+
+          for (const [k, v] of Object.entries(values)) {
+            expressionNames[`#${k}`] = k;
+            if (v) {
+              sets.push(`#${k} = :${k}`);
+              expValues[`:${k}`] = v;
+            } else {
+              removes.push(`#${k}`);
+            }
+          }
+
+          console.log(`SET: ${sets.length}, REMOVE: ${removes.length}`);
+
+          let expression = sets.length ? `SET ${sets.join(', ')}` : '';
+          expression += removes.length ? ` REMOVE ${removes.join(', ')}` : '';
+
+          console.log('update expression', expression);
+
+          const condition = JSON.parse(util.transform.toDynamoDBConditionExpression(inCondObj));
+
+          if (condition.expressionValues && !Object.keys(condition.expressionValues).length) {
+            delete condition.expressionValues;
+          }
+
+          return {
+            operation: 'UpdateItem',
+            key: util.dynamodb.toMapValues(key),
+            condition,
+            update: {
+              expression,
+              expressionNames,
+              expressionValues: util.dynamodb.toMapValues(expValues),
+            },
+          };
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+      - Apitable9F4D58B6
+  ApitableDELETEITEMFunction9BF18DBF:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      DataSourceName: table
+      Name: DELETE_ITEM
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync function: deletes an item in a DynamoDB table.
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+        import { util } from '@aws-appsync/utils';
+
+        export function request(ctx) {
+          const { id } = ctx.args.input;
+          return dynamodbDeleteRequest({ id });
+        }
+
+        export function response(ctx) {
+          const { error, result } = ctx;
+          if (error) {
+            return util.appendError(error.message, error.type, result);
+          }
+          return ctx.result;
+        }
+
+        function dynamodbDeleteRequest(key) {
+          return {
+            operation: 'DeleteItem',
+            key: util.dynamodb.toMapValues(key),
+          };
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+      - Apitable9F4D58B6
+  ApitableGETITEMFunction7A2A59C8:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      DataSourceName: table
+      Name: GET_ITEM
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync function: Fetches an item in a DynamoDB table.
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+
+        import { util } from '@aws-appsync/utils';
+
+        /**
+        * Request a single item from the attached DynamoDB table datasource
+        * @param ctx the request context
+        */
+        export function request(ctx) {
+          const { id } = ctx.args;
+          return dynamoDBGetItemRequest({ id });
+        }
+
+        /**
+        * Returns the result
+        * @param ctx the request context
+        */
+        export function response(ctx) {
+          const { error, result } = ctx;
+          if (error) {
+            return util.appendError(error.message, error.type, result);
+          }
+          return ctx.result;
+        }
+
+        /**
+        * A helper function to get a DynamoDB it
+        * @param key a set of keys for the item
+        * @returns a DynamoDB Get request
+        */
+        function dynamoDBGetItemRequest(key) {
+          return {
+            operation: 'GetItem',
+            key: util.dynamodb.toMapValues(key),
+          };
+        }
+
+    DependsOn:
+      - ApiSchema510EECD7
+      - Apitable9F4D58B6
+  ApitableLISTITEMSFunction435E2C8D:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      DataSourceName: table
+      Name: LIST_ITEMS
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync function: lists items in a DynamoDB table.
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+        import { util } from '@aws-appsync/utils';
+
+        export function request(ctx) {
+          const { filter, limit = 20, nextToken } = ctx.args;
+          return dynamoDBScanRequest({ filter, limit, nextToken });
+        }
+
+        export function response(ctx) {
+          const { error, result } = ctx;
+          if (error) {
+            return util.appendError(error.message, error.type, result);
+          }
+          const { items = [], nextToken } = result;
+          return { items, nextToken };
+        }
+
+        function dynamoDBScanRequest({ filter: f, limit, nextToken }) {
+          const filter = f ? JSON.parse(util.transform.toDynamoDBFilterExpression(f)) : null;
+
+          return { operation: 'Scan', filter, limit, nextToken };
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+      - Apitable9F4D58B6
+  ApitableQUERYITEMSFunctionE1932ECB:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      DataSourceName: table
+      Name: QUERY_ITEMS
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync function: Queries a dynamodb index.
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+        import { util } from '@aws-appsync/utils';
+
+        export function request(ctx) {
+          const { owner, first = 20, after } = ctx.args;
+          return dynamodbQueryRequest('owner', owner, 'owner-index', first, after);
+        }
+
+        export function response(ctx) {
+          const { error, result } = ctx;
+          if (error) {
+            return util.appendError(error.message, error.type, result);
+          }
+          return result;
+        }
+
+        function dynamodbQueryRequest(key, value, index, limit, nextToken) {
+          const expression = `#key = :key`;
+          const expressionNames = { '#key': key };
+          const expressionValues = util.dynamodb.toMapValues({ ':key': value });
+          return {
+            operation: 'Query',
+            query: { expression, expressionNames, expressionValues },
+            index,
+            limit,
+            nextToken,
+            scanIndexForward: true,
+            select: 'ALL_ATTRIBUTES',
+          };
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+      - Apitable9F4D58B6
+  ApiMutationcreateTodoResolver5A3F829E:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      FieldName: createTodo
+      TypeName: Mutation
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt:
+              - ApitableCREATEITEMFunction64BB3F3D
+              - FunctionId
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync resolver: implements before and after business logic for your pipeline
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+        /**
+         * Called before the request function of the first AppSync function in the pipeline.
+         * @param ctx The context object that holds contextual information about the function invocation.
+         */
+        export function request(ctx) {
+          return {};
+        }
+        /**
+         * Called after the response function of the last AppSync function in the pipeline.
+         * @param  ctx The context object that holds contextual information about the function invocation.
+         */
+        export function response(ctx) {
+          return ctx.prev.result;
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+  ApiMutationupdateTodoResolver0D9C08DA:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      FieldName: updateTodo
+      TypeName: Mutation
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt:
+              - ApitableUPDATEITEMFunctionAA45555C
+              - FunctionId
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync resolver: implements before and after business logic for your pipeline
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+        /**
+         * Called before the request function of the first AppSync function in the pipeline.
+         * @param ctx The context object that holds contextual information about the function invocation.
+         */
+        export function request(ctx) {
+          return {};
+        }
+        /**
+         * Called after the response function of the last AppSync function in the pipeline.
+         * @param  ctx The context object that holds contextual information about the function invocation.
+         */
+        export function response(ctx) {
+          return ctx.prev.result;
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+  ApiMutationdeleteTodoResolver067AADE4:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      FieldName: deleteTodo
+      TypeName: Mutation
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt:
+              - ApitableDELETEITEMFunction9BF18DBF
+              - FunctionId
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync resolver: implements before and after business logic for your pipeline
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+        /**
+         * Called before the request function of the first AppSync function in the pipeline.
+         * @param ctx The context object that holds contextual information about the function invocation.
+         */
+        export function request(ctx) {
+          return {};
+        }
+        /**
+         * Called after the response function of the last AppSync function in the pipeline.
+         * @param  ctx The context object that holds contextual information about the function invocation.
+         */
+        export function response(ctx) {
+          return ctx.prev.result;
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+  ApiQuerygetTodoResolver92363030:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      FieldName: getTodo
+      TypeName: Query
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt:
+              - ApitableGETITEMFunction7A2A59C8
+              - FunctionId
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync resolver: implements before and after business logic for your pipeline
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+        /**
+         * Called before the request function of the first AppSync function in the pipeline.
+         * @param ctx The context object that holds contextual information about the function invocation.
+         */
+        export function request(ctx) {
+          return {};
+        }
+        /**
+         * Called after the response function of the last AppSync function in the pipeline.
+         * @param  ctx The context object that holds contextual information about the function invocation.
+         */
+        export function response(ctx) {
+          return ctx.prev.result;
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+  ApiQuerylistTodosResolver50AE0590:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      FieldName: listTodos
+      TypeName: Query
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt:
+              - ApitableLISTITEMSFunction435E2C8D
+              - FunctionId
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync resolver: implements before and after business logic for your pipeline
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+        /**
+         * Called before the request function of the first AppSync function in the pipeline.
+         * @param ctx The context object that holds contextual information about the function invocation.
+         */
+        export function request(ctx) {
+          return {};
+        }
+        /**
+         * Called after the response function of the last AppSync function in the pipeline.
+         * @param  ctx The context object that holds contextual information about the function invocation.
+         */
+        export function response(ctx) {
+          return ctx.prev.result;
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+  ApiQueryqueryTodosByOwnerIndexResolverAEF95E9E:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - ApiF70053CD
+          - ApiId
+      FieldName: queryTodosByOwnerIndex
+      TypeName: Query
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt:
+              - ApitableQUERYITEMSFunctionE1932ECB
+              - FunctionId
+      Runtime:
+        Name: 'APPSYNC_JS'
+        RuntimeVersion: '1.0.0'
+      Code: |
+        /**
+         * AppSync resolver: implements before and after business logic for your pipeline
+         * Find more samples and templates at https://github.com/aws-samples/aws-appsync-resolver-samples
+         */
+        /**
+         * Called before the request function of the first AppSync function in the pipeline.
+         * @param ctx The context object that holds contextual information about the function invocation.
+         */
+        export function request(ctx) {
+          return {};
+        }
+        /**
+         * Called after the response function of the last AppSync function in the pipeline.
+         * @param  ctx The context object that holds contextual information about the function invocation.
+         */
+        export function response(ctx) {
+          return ctx.prev.result;
+        }
+    DependsOn:
+      - ApiSchema510EECD7
+  TodoTable585F1D6B:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: owner
+          AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: owner-index
+          KeySchema:
+            - AttributeName: owner
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain

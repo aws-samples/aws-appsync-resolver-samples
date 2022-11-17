@@ -1,0 +1,119 @@
+input CreateTodoInput {
+  title: String
+  description: String
+  owner: String
+}
+
+input DeleteTodoInput {
+  id: ID!
+}
+
+type Mutation {
+  createTodo(input: CreateTodoInput!): Todo
+  updateTodo(input: UpdateTodoInput!): Todo
+  deleteTodo(input: DeleteTodoInput!): Todo
+}
+
+type Query {
+  getTodo(id: ID!): Todo
+  listTodos(
+    filter: TableTodoFilterInput
+    limit: Int
+    nextToken: String
+  ): TodoConnection
+  queryTodosByOwnerIndex(
+    owner: String!
+    first: Int
+    after: String
+  ): TodoConnection
+}
+
+type Subscription {
+  onCreateTodo(id: ID, title: String, description: String, owner: String): Todo
+    @aws_subscribe(mutations: ["createTodo"])
+  onUpdateTodo(id: ID, title: String, description: String, owner: String): Todo
+    @aws_subscribe(mutations: ["updateTodo"])
+  onDeleteTodo(id: ID, title: String, description: String, owner: String): Todo
+    @aws_subscribe(mutations: ["deleteTodo"])
+}
+
+input TableBooleanFilterInput {
+  ne: Boolean
+  eq: Boolean
+}
+
+input TableFloatFilterInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  contains: Float
+  notContains: Float
+  between: [Float]
+}
+
+input TableIDFilterInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+}
+
+input TableIntFilterInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  contains: Int
+  notContains: Int
+  between: [Int]
+}
+
+input TableStringFilterInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+}
+
+input TableTodoFilterInput {
+  id: TableIDFilterInput
+  title: TableStringFilterInput
+  description: TableStringFilterInput
+  owner: TableStringFilterInput
+}
+
+type Todo {
+  id: ID!
+  title: String
+  description: String
+  owner: String
+}
+
+type TodoConnection {
+  items: [Todo]
+  nextToken: String
+}
+
+input UpdateTodoInput {
+  id: ID!
+  title: String
+  description: String
+  owner: String
+}
