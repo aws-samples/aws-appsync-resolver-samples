@@ -1,1 +1,28 @@
-{}
+{
+  "arguments": {
+    "text": "my message",
+    "source": "EN",
+    "target": "FR",
+    "id": "default",
+    "nextToken": "next",
+    "first": 5,
+    "after": "<token>",
+    "filter": { "title": { "ne": "something" } },
+    "input": {
+      "id": "default",
+      "title": "hello word",
+      "description": "a thing i need to do",
+      "something": null,
+      "blank": "",
+      "owner": "john"
+    }
+  },
+  "result": {
+    "blank": "result"
+  },
+  "prev": {
+    "result": {
+      "id": "previous-result-id"
+    }
+  }
+}
