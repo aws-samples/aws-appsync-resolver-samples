@@ -18,10 +18,10 @@ The [functions](./functions/) folder contains the code for the AppSync functions
 
 Deploy this stack by using [template.yaml](./template.yaml) from the Cloudformation console or using the AWS CLI.
 
-With the AWS CLI:
+With the AWS CLI, from this folder:
 
 ```sh
-aws cloudformation deploy --template-file apis/todo-api/template.yaml --stack-name demo-todo-api-js --capabilities CAPABILITY_IAM
+aws cloudformation deploy --template-file ./template.yaml --stack-name demo-todo-api-js --capabilities CAPABILITY_IAM
 ```
 
 ## Delete the stack
