@@ -1,3 +1,5 @@
+# This is a utility function that you can use to call evaluateCode from the command line
+
 #!/usr/bin/env bash
 set -o errexit -o nounset -o pipefail
 # set -x
@@ -19,11 +21,11 @@ function run_evaluate() { #HELP Evaluates code:\nHOLDER evaluate <path.js> [requ
   RES=$(aws appsync evaluate-code --code "file://$CODE" --function $FN \
     --context "$CONTEXT" \
     --runtime name=APPSYNC_JS,runtimeVersion=1.0.0)
+  echo "$RES"
   echo "$RES" >"$OUT_PATH/response.json"
   echo "$RES" | jq 'select(.evaluationResult != null) | .evaluationResult | fromjson'
   echo "$RES" | jq -r 'select(.logs != null) | .logs[] | @text'
   echo "$RES" | jq -r 'select(.error != null) | .error.message'
-  # echo "$RES"
 }
 
 function run_help() {

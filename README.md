@@ -4,7 +4,10 @@ This repo contains samples showing how to use AppSync JavaScript resolvers and f
 
 - Learn more about JavaScript support in AWS AppSync by visiting the [Resolver reference (JavaScript)](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-reference-js-version.html) documentation.
 
-Each subdirectory contains additional installation and usage instructions.
+## Content
+
+- [samples](./samples/): Contains Cloudformation and AWS CDK sample APIs
+- [templates](./templates/) Contains AppSync functions templates that you can leverage in your own APIs
 
 ----
 This library is licensed under the MIT-0 License. See the LICENSE file.
