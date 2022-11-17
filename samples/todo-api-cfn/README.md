@@ -24,6 +24,8 @@ With the AWS CLI, from this folder:
 aws cloudformation deploy --template-file ./template.yaml --stack-name demo-todo-api-js --capabilities CAPABILITY_IAM
 ```
 
+Once deployed, you can find your API **TodoAPIwithJs** in the AWS console.
+
 ## Delete the stack
 
 To delete your resources: visit the Cloudformation console and delete the stack.
