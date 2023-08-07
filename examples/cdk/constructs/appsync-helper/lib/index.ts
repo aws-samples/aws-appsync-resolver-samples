@@ -58,6 +58,9 @@ export function request(){ return {} }
 export function response(ctx){ return ctx.prev.result}
 `.trim();
 
+const TS_CONFIG =
+	` { "compilerOptions": { "target": "es2021", "module": "Node16", "noEmit": true, "moduleResolution": "node", } }`.trim();
+
 type BaseResolver = {
 	key: string;
 	kind: 'UNIT' | 'PIPELINE';
@@ -84,12 +87,12 @@ type AppSyncFn = {
 	order: number;
 };
 
-export interface AppSyncFolderAPIProps extends Omit<GraphqlApiProps, 'schema' | 'name'> {
+export interface AppSyncHelperProps extends Omit<GraphqlApiProps, 'schema' | 'name'> {
 	name?: string;
 	basedir: string;
 }
 
-export class AppSyncFolderAPI extends GraphqlApiBase {
+export class AppSyncHelper extends GraphqlApiBase {
 	private basedir: string;
 	private bindCalled = false;
 
@@ -110,7 +113,7 @@ export class AppSyncFolderAPI extends GraphqlApiBase {
 	 */
 	public readonly functions: Record<string, (AppsyncFunction | undefined)[]> = {};
 
-	constructor(scope: Construct, id: string, props: AppSyncFolderAPIProps) {
+	constructor(scope: Construct, id: string, props: AppSyncHelperProps) {
 		super(scope, id);
 
 		const { basedir, name: propsName, ...rest } = props;
@@ -185,14 +188,14 @@ export class AppSyncFolderAPI extends GraphqlApiBase {
 			target: 'node16',
 			sourcemap: 'inline',
 			sourcesContent: false,
+			tsconfigRaw: TS_CONFIG,
 			external: ['@aws-appsync/utils'],
 		});
 		if (result.errors.length) {
 			throw new Error('Could not build' + key + ': ' + result.errors.join('\n'));
 		}
-		// console.debug(bres)
-		fs.writeFileSync(result.outputFiles[0].path, result.outputFiles[0].text);
-		return result.outputFiles[0].path;
+		// fs.writeFileSync(result.outputFiles[0].path, result.outputFiles[0].text);
+		return result.outputFiles[0];
 	}
 
 	private buildPieplineResolver(resolverFile: PipelineResolverGroup) {
@@ -206,14 +209,14 @@ export class AppSyncFolderAPI extends GraphqlApiBase {
 				throw new Error('datasource undefined: ' + fn.dsName);
 			}
 
-			const filePath = this.build(fn.key);
+			const buildResult = this.build(fn.key);
 			const fnId = `FN_${typeName}_${fieldName}_${fn.order}`;
 			const fnR = new AppsyncFunction(this.api, fnId, {
 				api: this.api,
 				name: fnId,
 				description: fn.description,
 				dataSource,
-				code: Code.fromAsset(filePath),
+				code: Code.fromInline(buildResult.text),
 				runtime: FunctionRuntime.JS_1_0_0,
 			});
 			// make sure function version is not set
@@ -227,8 +230,8 @@ export class AppSyncFolderAPI extends GraphqlApiBase {
 
 		let code: Code;
 		if (resolverFile.hasCode) {
-			const filePath = this.build(path.join(resolverFile.key, 'index.ts'));
-			code = Code.fromAsset(filePath);
+			const buildResult = this.build(path.join(resolverFile.key, 'index.ts'));
+			code = Code.fromInline(buildResult.text);
 		} else {
 			code = Code.fromInline(DEF_RESOLVER_CODE);
 		}
@@ -252,14 +255,14 @@ export class AppSyncFolderAPI extends GraphqlApiBase {
 			throw new Error('datasource undefined: ' + resolverFile.dsName);
 		}
 
-		const filePath = this.build(resolverFile.key);
+		const buildResult = this.build(resolverFile.key);
 		const resId = `${typeName}_${fieldName}`;
 		const resolver = new Resolver(this.api, resId, {
 			api: this.api,
 			dataSource,
 			typeName,
 			fieldName,
-			code: Code.fromAsset(filePath),
+			code: Code.fromInline(buildResult.text),
 			runtime: FunctionRuntime.JS_1_0_0,
 		});
 		this.resolvers[resId] = resolver;
@@ -270,17 +273,15 @@ export class AppSyncFolderAPI extends GraphqlApiBase {
 	 * @returns a list of resolver locations
 	 */
 	getUnitResolvers() {
-		let folders: fs.Dirent[] = [];
-		try {
-			folders = fs.readdirSync(path.join(this.basedir, 'resolvers'), {
-				withFileTypes: true,
-			});
-		} catch (error) {
-			// console.log('there are no resolvers')
+		const resolverPath = path.join(this.basedir, 'resolvers');
+		if (!fs.existsSync(resolverPath)) {
+			// noop
 			return [];
 		}
+		let folders: fs.Dirent[] = [];
+		folders = fs.readdirSync(resolverPath, { withFileTypes: true });
 
-		const RES_LOC_REG = /(?<typeName>\w+)\.(?<fieldName>\w+)\.\[(?<ds>\w+)\]\.(ts)/;
+		const RES_LOC_REG = /^(?<typeName>\w+)\.(?<fieldName>\w+)\.\[(?<ds>\w+)\]\.(ts)$/;
 
 		// find all the resolvers and create a single function pipeline resolver
 		const resolvers =
@@ -309,24 +310,22 @@ export class AppSyncFolderAPI extends GraphqlApiBase {
 	 * @returns a list of resolver locations
 	 */
 	getPipelineResolvers() {
-		let folders: fs.Dirent[] = [];
-		try {
-			folders = fs.readdirSync(path.join(this.basedir, 'resolvers'), {
-				withFileTypes: true,
-			});
-		} catch (error) {
-			// console.log('there are no resolvers')
+		const resolverPath = path.join(this.basedir, 'resolvers');
+		if (!fs.existsSync(resolverPath)) {
+			// noop
 			return [];
 		}
 
-		// const RES_LOC_REG = /(?<typeName>\w+)\.(?<fieldName>\w+)\.\[(?<ds>\w+)\]\.(ts)/
+		let folders: fs.Dirent[] = [];
+		folders = fs.readdirSync(resolverPath, { withFileTypes: true });
+
 		const RES_DIR_REG = /^(?<typeName>\w+)\.(?<fieldName>\w+)$/;
 		const FN_LOC_REG = /^((?<description>\w+)\.)?(?<order>\d+)\.\[(?<ds>\w+)\]\.(ts)$/;
 
 		// find all the resolvers and create a single function pipeline resolver
 		const resolvers =
 			folders
-				.filter((entry) => entry.isDirectory)
+				.filter((entry) => entry.isDirectory())
 				.filter((entry) => entry.name.match(RES_DIR_REG))
 				.map<PipelineResolverGroup>((entry) => {
 					const name = entry.name;
@@ -341,11 +340,8 @@ export class AppSyncFolderAPI extends GraphqlApiBase {
 					};
 				}) ?? [];
 
-		// console.log('pipelines:', resolvers)
-
 		// for each pipeline function directory, find the functions
 		for (const resolver of resolvers) {
-			// console.log(resolver.key)
 			const entries = fs.readdirSync(resolver.key);
 
 			// check if there is an index file for this pipeline
@@ -353,7 +349,6 @@ export class AppSyncFolderAPI extends GraphqlApiBase {
 			resolver.hasCode = index.length > 0;
 
 			const fnEntries = entries.filter((i) => i.match(FN_LOC_REG));
-			// console.log(inner)
 			const fns = fnEntries.map<AppSyncFn>((entry) => {
 				const m = entry.match(FN_LOC_REG)!;
 				return {
@@ -365,7 +360,6 @@ export class AppSyncFolderAPI extends GraphqlApiBase {
 				};
 			});
 			resolver.fns.push(...fns);
-			// console.log('*** final pipelines:', resolver.fns)
 		}
 		return resolvers;
 	}

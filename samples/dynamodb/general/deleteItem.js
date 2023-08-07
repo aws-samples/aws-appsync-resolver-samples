@@ -6,10 +6,10 @@ import { util } from '@aws-appsync/utils';
  * @returns {import('@aws-appsync/utils').DynamoDBDeleteItemRequest} the request
  */
 export function request(ctx) {
-  return {
-    operation: 'DeleteItem',
-    key: util.dynamodb.toMapValues({ id: ctx.args.id }),
-  };
+	return {
+		operation: 'DeleteItem',
+		key: util.dynamodb.toMapValues({ id: ctx.args.id }),
+	};
 }
 
 /**
@@ -18,8 +18,8 @@ export function request(ctx) {
  * @returns {*} the deleted item
  */
 export function response(ctx) {
-  if (ctx.error) {
-    util.error(ctx.error.message, ctx.error.type);
-  }
-  return ctx.result;
+	if (ctx.error) {
+		util.error(ctx.error.message, ctx.error.type);
+	}
+	return ctx.result;
 }
