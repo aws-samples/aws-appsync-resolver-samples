@@ -12,6 +12,7 @@ import {
 	ExtendedResolverProps,
 	HttpDataSourceOptions,
 	GraphqlApiProps,
+	CfnDataSource,
 } from 'aws-cdk-lib/aws-appsync';
 import { IDomain as IOpenSearchDomain } from 'aws-cdk-lib/aws-opensearchservice';
 import * as fs from 'node:fs';
@@ -137,6 +138,23 @@ export class AppSyncHelper extends GraphqlApiBase {
 
 	private connect(datasource: BaseDataSource) {
 		this.datasources[datasource.name] = datasource;
+	}
+
+	public addCfnDataSource(ds: CfnDataSource) {
+		const datasource = {
+			name: ds.name,
+			ds,
+			createResolver: (id: string, props: unknown) => {
+				throw new Error('not implemented');
+				return;
+			},
+			createFunction: (id: string, props: unknown) => {
+				throw new Error('not implemented');
+				return;
+			},
+		} as BaseDataSource;
+		this.connect(datasource);
+		return datasource;
 	}
 
 	public bind() {
