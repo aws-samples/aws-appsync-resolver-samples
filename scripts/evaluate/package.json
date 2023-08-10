@@ -1,0 +1,16 @@
+{
+	"name": "evaluate",
+	"type": "module",
+	"version": "1.0.0",
+	"description": "evaluate AppSync resolvers and functions",
+	"main": "index.mjs",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"commander": "^11.0.0"
+	}
+}
