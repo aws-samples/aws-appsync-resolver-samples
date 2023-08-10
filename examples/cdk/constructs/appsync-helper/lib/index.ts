@@ -13,6 +13,7 @@ import {
 	HttpDataSourceOptions,
 	GraphqlApiProps,
 	CfnDataSource,
+	CfnFunctionConfiguration,
 } from 'aws-cdk-lib/aws-appsync';
 import { IDomain as IOpenSearchDomain } from 'aws-cdk-lib/aws-opensearchservice';
 import * as fs from 'node:fs';
@@ -120,12 +121,12 @@ export class AppSyncHelper extends GraphqlApiBase {
 		const { basedir, name: propsName, ...rest } = props;
 
 		const name = propsName ?? id;
-		this.basedir = props.basedir;
-		const apiId = path.basename(props.basedir);
+		this.basedir = basedir;
+		const apiId = path.basename(basedir);
 		this.api = new GraphqlApi(this, apiId, {
 			name,
 			...rest,
-			schema: SchemaFile.fromAsset(path.join(props.basedir, 'schema.graphql')),
+			schema: SchemaFile.fromAsset(path.join(basedir, 'schema.graphql')),
 		});
 	}
 
@@ -144,10 +145,12 @@ export class AppSyncHelper extends GraphqlApiBase {
 		const datasource = {
 			name: ds.name,
 			ds,
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			createResolver: (id: string, props: unknown) => {
 				throw new Error('not implemented');
 				return;
 			},
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			createFunction: (id: string, props: unknown) => {
 				throw new Error('not implemented');
 				return;
@@ -238,7 +241,7 @@ export class AppSyncHelper extends GraphqlApiBase {
 				runtime: FunctionRuntime.JS_1_0_0,
 			});
 			// make sure function version is not set
-			delete (fnR.node.defaultChild as any)?.functionVersion;
+			delete (fnR.node.defaultChild as CfnFunctionConfiguration)?.functionVersion;
 			fns.push({ order: fn.order, fn: fnR });
 		}
 		const pipelineConfig = fns.sort((a, b) => a.order - b.order).map((obj) => obj.fn);
