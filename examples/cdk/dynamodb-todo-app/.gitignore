@@ -9,3 +9,4 @@ cdk.out
 
 **/codegen/graphql
 **/codegen/API.ts
+output.json

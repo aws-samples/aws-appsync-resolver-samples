@@ -144,3 +144,7 @@ dist
 # End of https://www.toptal.com/developers/gitignore/api/node
 .DS_Store
 scripts/response.json
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out

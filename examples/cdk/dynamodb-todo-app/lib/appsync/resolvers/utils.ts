@@ -3,7 +3,7 @@ import { Context, DynamoDBPutItemRequest, Key } from '@aws-appsync/utils';
 /**
  * Checks for errors and returns the `result
  */
-export function checkErrorsandRespond(ctx: Context) {
+export function checkErrorsAndRespond(ctx: Context) {
 	if (ctx.error) {
 		util.error(ctx.error.message, ctx.error.type);
 	}

@@ -17,8 +17,12 @@ export class DynamodbTodoAppStack extends cdk.Stack {
 			logConfig: { fieldLogLevel: FieldLogLevel.ALL },
 			xrayEnabled: true,
 		});
-		appSyncApp.addNoneDataSource('NONE');
 		appSyncApp.addDynamoDbDataSource('todos', todoTable);
 		appSyncApp.bind();
+
+		new cdk.CfnOutput(this, 'GRAPHQLENDPOINT', { value: appSyncApp.api.graphqlUrl });
+		new cdk.CfnOutput(this, 'REGION', { value: cdk.Stack.of(this).region });
+		new cdk.CfnOutput(this, 'AUTHTYPE', { value: 'API_KEY' });
+		new cdk.CfnOutput(this, 'APIKEY', { value: appSyncApp.api.apiKey! });
 	}
 }

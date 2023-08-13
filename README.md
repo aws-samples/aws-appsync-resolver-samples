@@ -11,6 +11,7 @@ You can use this repository to get started in both TypeScript and JavaScript sol
 **[Documentation](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-reference-overview-js.html)** | **[npm - appsync-utils](https://www.npmjs.com/package/@aws-appsync/utils)** | **[npm - eslint plugin](https://www.npmjs.com/package/@aws-appsync/eslint-plugin)** | **[Samples](./samples/)** | **[CloudFormation and CDK Examples](./examples/)**
 
 ## Table of contents <!-- omit in toc -->
+
 - [About resolvers](#about-resolvers)
 - [Content](#content)
 - [Features](#features)
@@ -23,7 +24,7 @@ You can use this repository to get started in both TypeScript and JavaScript sol
 
 Resolvers are the connectors between GraphQL and a data source. They tell AWS AppSync how to translate an incoming GraphQL request into instructions for your backend data source, and how to translate the response from that data source back into a GraphQL response. With AWS AppSync, you can write resolvers using JavaScript, that are run on the AppSync JavaScript (APPSYNC_JS) runtime.
 
-The AppSync JavaScript runtime allows developers to write expressive logic in JavaScript for their business requirements, while using syntax, constructs, and features of the language that they are already familiar with. The runtime has some restrictions from tradeoffs that were made in order for to provide high performance and consistent execution in a secure, multitenant environment in a serverless manner. However, the tradeoffs do come with benefits as well, such as no extra costs and lower latencies. For a detailed list of supported features in the runtime, see our [resolver reference](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-util-reference-js.html).
+The AppSync JavaScript runtime allows developers to write expressive logic in JavaScript for their business requirements, while using syntax, constructs, and features of the language that they are already familiar with. The runtime has some restrictions from tradeoffs that were made in order for to provide high performance and consistent execution in a secure, multi-tenant environment in a serverless manner. However, the tradeoffs do come with benefits as well, such as no extra costs and lower latencies. For a detailed list of supported features in the runtime, see our [resolver reference](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-util-reference-js.html).
 
 JavaScript resolvers allow you to express your business logic using a simple interface. At its core, your resolvers implement a `request` and `response` function.
 
@@ -67,7 +68,7 @@ You can also work from the console and edit your code directly the console edito
 
 ## Feedback and Support
 
-If you have any questions, feedback, or need assistance, please don't hesitate to open an issue on this repository. For general inquiries about AppSync, please visit our [Communit respository](https://github.com/aws/aws-appsync-community)
+If you have any questions, feedback, or need assistance, please don't hesitate to open an issue on this repository. For general inquiries about AppSync, please visit our [Community repository](https://github.com/aws/aws-appsync-community)
 
 ----
 This library is licensed under the MIT-0 License. See the LICENSE file.

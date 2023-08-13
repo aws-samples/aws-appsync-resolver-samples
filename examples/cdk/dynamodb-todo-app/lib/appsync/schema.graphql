@@ -1,11 +1,8 @@
-input CreateTodoInput {
+type Todo {
+	id: ID!
 	title: String
 	description: String
 	owner: String
-}
-
-input DeleteTodoInput {
-	id: ID!
 }
 
 type Mutation {
@@ -26,6 +23,16 @@ type Subscription {
 		@aws_subscribe(mutations: ["updateTodo"])
 	onDeleteTodo(id: ID, title: String, description: String, owner: String): Todo
 		@aws_subscribe(mutations: ["deleteTodo"])
+}
+
+input CreateTodoInput {
+	title: String
+	description: String
+	owner: String
+}
+
+input DeleteTodoInput {
+	id: ID!
 }
 
 input TableBooleanFilterInput {
@@ -88,13 +95,6 @@ input TableTodoFilterInput {
 	title: TableStringFilterInput
 	description: TableStringFilterInput
 	owner: TableStringFilterInput
-}
-
-type Todo {
-	id: ID!
-	title: String
-	description: String
-	owner: String
 }
 
 type TodoConnection {
