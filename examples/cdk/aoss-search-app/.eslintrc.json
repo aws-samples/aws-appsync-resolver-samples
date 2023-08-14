@@ -14,11 +14,7 @@
 	"overrides": [
 		{
 			"files": ["lib/appsync/resolvers/*.ts"],
-			"extends": [
-				"eslint:recommended",
-				"plugin:@typescript-eslint/recommended",
-				"plugin:@aws-appsync/recommended"
-			],
+			"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
 			"parserOptions": {
 				"ecmaVersion": "latest",
 				"sourceType": "module",

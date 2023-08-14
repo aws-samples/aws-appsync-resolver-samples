@@ -1,8 +1,8 @@
 # Todo Search API - CDK Example
 
-This CDK app provides an implementation for a simple Todo API  with AppSync JavaScript resolvers.
+This CDK app provides an implementation of an AppSync API that uses an [Amazon OpenSearch Serverless](https://aws.amazon.com/opensearch-service/features/serverless/) Collection as a data source. The data source is configured as an HTTP data source and uses an attached role to sign the requests.
 
-The API allows you to interact with a Todo type that is backed by a DynamoDB table.
+The API allows you to create an index, create a document, and search documents. The schema uses a Todo type as an example.
 
 ```graphql
 type Todo {
@@ -19,17 +19,19 @@ The app uses the [AppSync Helper construct](../constructs/appsync-helper/) for a
 lib
 ├── appsync
 │   ├── codegen
+│   │   ├── graphql
+│   │   │   ├── mutations.ts
+│   │   │   └── queries.ts
+│   │   ├── API.ts
 │   │   └── index.ts
 │   ├── resolvers
-│   │   ├── Mutation.createTodo.[todos].ts
-│   │   ├── Mutation.deleteTodo.[todos].ts
-│   │   ├── Mutation.updateTodo.[todos].ts
-│   │   ├── Query.getTodo.[todos].ts
-│   │   ├── Query.listTodos.[todos].ts
+│   │   ├── Mutation.createIndex.[aoss].ts
+│   │   ├── Mutation.indexTodo.[aoss].ts
+│   │   ├── Query.search.[aoss].ts
 │   │   └── utils.ts
 │   └── schema.graphql
 ├── appsync-helper.ts
-└── dynamodb-todo-app-stack.ts
+└── aoss-search-app-stack.ts
 ```
 
 The [appsync](./lib/appsync-helper.ts) folder contains schema and the resolver code. This project uses unit resolvers, but you can expand it to use pipeline resolvers if needed.
@@ -58,7 +60,7 @@ To deploy the stack, from the top folder:
 npm run cdk deploy -- -O output.json
 ```
 
-Once deployed, you can find your API **TodoAPI** in the AWS console.
+Once deployed, you can find your API **SearchTodoAPI** in the AWS console.
 
 ## Connect to an app
 
