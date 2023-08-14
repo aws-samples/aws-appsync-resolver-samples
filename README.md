@@ -1,5 +1,6 @@
 <p align="center">
   <a href="https://docs.aws.amazon.com/appsync/latest/devguide/quickstart.html">
+    <img src="./appsync-logo-600.png" height="96" />
     <h1 align="center">AWS AppSync Samples</h1>
   </a>
 </p>

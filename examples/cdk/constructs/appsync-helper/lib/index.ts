@@ -61,7 +61,11 @@ export function response(ctx){ return ctx.prev.result}
 `.trim();
 
 const TS_CONFIG =
-	` { "compilerOptions": { "target": "es2021", "module": "Node16", "noEmit": true, "moduleResolution": "node", } }`.trim();
+	` { "compilerOptions": { "target": "es2021", "module": "Node16", "noEmit": true, "moduleResolution": "node", "baseUrl": "./",
+		"paths": {
+			"@codegen": ["./lib/appsync/codegen/index.ts"],
+			"@codegen/*": ["./lib/appsync/codegen/*"]
+		},} }`.trim();
 
 type BaseResolver = {
 	key: string;

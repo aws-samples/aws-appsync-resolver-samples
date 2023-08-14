@@ -1,0 +1,31 @@
+type Message @aws_api_key @aws_cognito_user_pools {
+	id: ID!
+	text: String!
+	from: String!
+	kind: MSG_KIND!
+	to: String
+	createdAt: AWSDateTime
+}
+
+enum MSG_KIND {
+	ALL
+	DIRECT
+}
+
+type Mutation @aws_api_key @aws_cognito_user_pools {
+	publish(input: PublishMessageInput!): Message
+}
+
+type Query {
+	whoami: String
+}
+
+type Subscription @aws_api_key @aws_cognito_user_pools {
+	onPublish: Message @aws_subscribe(mutations: ["publish"])
+}
+
+input PublishMessageInput {
+	text: String!
+	kind: MSG_KIND!
+	to: String
+}

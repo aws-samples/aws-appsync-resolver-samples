@@ -14,7 +14,11 @@ export class DynamodbTodoAppStack extends cdk.Stack {
 		});
 		const appSyncApp = new AppSyncHelper(this, 'TodoAPI', {
 			basedir: path.join(__dirname, 'appsync'),
-			logConfig: { fieldLogLevel: FieldLogLevel.ALL },
+			logConfig: {
+				fieldLogLevel: FieldLogLevel.ALL,
+				excludeVerboseContent: false,
+				retention: cdk.aws_logs.RetentionDays.ONE_WEEK,
+			},
 			xrayEnabled: true,
 		});
 		appSyncApp.addDynamoDbDataSource('todos', todoTable);
