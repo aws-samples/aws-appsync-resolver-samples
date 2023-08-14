@@ -7,31 +7,35 @@ import * as appsync from 'aws-cdk-lib/aws-appsync';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as opensearchserverless from 'aws-cdk-lib/aws-opensearchserverless';
 
-export class AosDdbSearchAppStack extends cdk.Stack {
+export class AossSearchAppStack extends cdk.Stack {
 	constructor(scope: Construct, id: string, props?: cdk.StackProps) {
 		super(scope, id, props);
 
-		const httpDSRole = new iam.Role(this, 'Role', {
+		const httpDatasourceRole = new iam.Role(this, 'Role', {
 			assumedBy: new iam.ServicePrincipal('appsync.amazonaws.com'),
-			description: 'roll for http resource',
+			description: 'role for http resource',
 		});
-		httpDSRole.addToPolicy(new iam.PolicyStatement({ actions: ['aoss:*'], resources: ['*'] }));
+		httpDatasourceRole.addToPolicy(
+			new iam.PolicyStatement({ actions: ['aoss:*'], resources: ['*'] })
+		);
 
 		const appSyncApp = new AppSyncHelper(this, 'SearchTodoAPI', {
 			basedir: path.join(__dirname, 'appsync'),
-			logConfig: { fieldLogLevel: appsync.FieldLogLevel.ALL },
+			logConfig: {
+				fieldLogLevel: appsync.FieldLogLevel.ALL,
+				excludeVerboseContent: false,
+				retention: cdk.aws_logs.RetentionDays.ONE_WEEK,
+			},
 			xrayEnabled: true,
 		});
 
-		const todoTable = new dynamodb.Table(this, 'TodoTable', {
-			partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-		});
+		const collectionName = 'todos';
 
 		const encPolicy = new opensearchserverless.CfnSecurityPolicy(this, 'EncPolicy', {
 			name: 'encryption-policy',
 			type: 'encryption',
 			policy: JSON.stringify({
-				Rules: [{ ResourceType: 'collection', Resource: ['collection/todos'] }],
+				Rules: [{ ResourceType: 'collection', Resource: [`collection/${collectionName}`] }],
 				AWSOwnedKey: true,
 			}),
 		});
@@ -42,8 +46,8 @@ export class AosDdbSearchAppStack extends cdk.Stack {
 			policy: JSON.stringify([
 				{
 					Rules: [
-						{ ResourceType: 'collection', Resource: ['collection/todos'] },
-						{ ResourceType: 'dashboard', Resource: ['collection/todos'] },
+						{ ResourceType: 'collection', Resource: [`collection/${collectionName}`] },
+						{ ResourceType: 'dashboard', Resource: [`collection/${collectionName}`] },
 					],
 					AllowFromPublic: true,
 				},
@@ -58,14 +62,19 @@ export class AosDdbSearchAppStack extends cdk.Stack {
 					Description: 'Access for appsync',
 					Rules: [
 						{ ResourceType: 'index', Resource: ['index/*/*'], Permission: ['aoss:*'] },
-						{ ResourceType: 'collection', Resource: ['collection/todos'], Permission: ['aoss:*'] },
+						{
+							ResourceType: 'collection',
+							Resource: [`collection/${collectionName}`],
+							Permission: ['aoss:*'],
+						},
 					],
-					Principal: [httpDSRole.roleArn],
+					Principal: [httpDatasourceRole.roleArn],
 				},
 			]),
 		});
-		const collection = new opensearchserverless.CfnCollection(this, 'Collection', {
-			name: 'todos',
+
+		const collection = new opensearchserverless.CfnCollection(this, 'todos-collection', {
+			name: collectionName,
 			description: 'a collection of todos',
 			type: 'SEARCH',
 		});
@@ -73,10 +82,10 @@ export class AosDdbSearchAppStack extends cdk.Stack {
 		collection.addDependency(netPolicy);
 		collection.addDependency(dataAccessPolicy);
 
-		const aossDS = new appsync.CfnDataSource(appSyncApp, 'aos', {
+		const aossDS = new appsync.CfnDataSource(appSyncApp, 'aoss', {
 			apiId: appSyncApp.apiId,
 			name: 'aoss',
-			serviceRoleArn: httpDSRole.roleArn,
+			serviceRoleArn: httpDatasourceRole.roleArn,
 			type: 'HTTP',
 			httpConfig: {
 				endpoint: collection.attrCollectionEndpoint,
@@ -89,10 +98,8 @@ export class AosDdbSearchAppStack extends cdk.Stack {
 				},
 			},
 		});
-		// appSyncApp.addHttpDataSource('aos', collection.attrCollectionEndpoint);
 		appSyncApp.addNoneDataSource('NONE');
-		appSyncApp.addDynamoDbDataSource('todos', todoTable);
-		appSyncApp.addCfnDataSource('aoss', aossDS);
+		appSyncApp.addCfnDataSource(aossDS);
 		appSyncApp.bind();
 	}
 }

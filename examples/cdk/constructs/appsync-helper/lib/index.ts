@@ -215,7 +215,7 @@ export class AppSyncHelper extends GraphqlApiBase {
 		if (result.errors.length) {
 			throw new Error('Could not build' + key + ': ' + result.errors.join('\n'));
 		}
-		// fs.writeFileSync(result.outputFiles[0].path, result.outputFiles[0].text);
+		fs.writeFileSync(result.outputFiles[0].path, result.outputFiles[0].text);
 		return result.outputFiles[0];
 	}
 
