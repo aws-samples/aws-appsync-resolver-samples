@@ -1,5 +1,5 @@
 import { Context } from '@aws-appsync/utils';
-import { UpdateTodoMutationVariables } from '@codegen';
+import { UpdateTodoMutationVariables } from '../codegen';
 import { dynamodbUpdateRequest } from './utils';
 export { checkErrorsAndRespond as response } from './utils';
 

@@ -1,5 +1,5 @@
 import { Context } from '@aws-appsync/utils';
-import { Result, ListTodosQuery, ListTodosQueryVariables } from '@codegen';
+import { Result, ListTodosQuery, ListTodosQueryVariables } from '../codegen';
 
 export function request(ctx: Context<ListTodosQueryVariables>) {
 	const { limit = 10, nextToken } = ctx.args;

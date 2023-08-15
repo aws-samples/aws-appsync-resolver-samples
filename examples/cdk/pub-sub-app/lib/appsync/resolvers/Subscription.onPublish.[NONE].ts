@@ -1,5 +1,5 @@
 import { util, Context, extensions, AppSyncIdentityCognito, NONERequest } from '@aws-appsync/utils';
-import { MSG_KIND, Message } from '@codegen';
+import { MSG_KIND, Message } from '../codegen';
 
 export function request(ctx: Context): NONERequest {
 	if (util.authType() === 'User Pool Authorization') {

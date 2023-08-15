@@ -1,13 +1,12 @@
 import { Context } from '@aws-appsync/utils';
 import { search } from './utils';
-import { Result, SearchQueryVariables, SearchableTodoConnection } from '@codegen';
+import { Result, SearchQueryVariables, SearchableTodoConnection } from '../codegen';
 
 export function request(ctx: Context<SearchQueryVariables>) {
 	const { filter, limit, nextToken } = ctx.args;
 	const match_all = JSON.stringify({ match_all: {} });
-	const bq = !filter
-		? match_all
-		: (util.transform.toElasticsearchQueryDSL(ctx.args.filter as never) as unknown as string);
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const bq = !filter ? match_all : util.transform.toElasticsearchQueryDSL(filter as any);
 	const body: Record<string, unknown> = { query: JSON.parse(bq) };
 	if (nextToken) {
 		body.search_after = JSON.parse(util.base64Decode(nextToken));

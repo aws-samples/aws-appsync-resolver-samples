@@ -97,7 +97,6 @@ export class AossSearchAppStack extends cdk.Stack {
 				},
 			},
 		});
-		appSyncApp.addNoneDataSource('NONE');
 		appSyncApp.addCfnDataSource(aossDS);
 		appSyncApp.bind();
 	}

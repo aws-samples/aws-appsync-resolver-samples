@@ -1,5 +1,5 @@
 import { Context } from '@aws-appsync/utils';
-import { IndexTodoMutationVariables } from '@codegen';
+import { IndexTodoMutationVariables } from '../codegen';
 import { indexItem } from './utils';
 
 export function request(ctx: Context<IndexTodoMutationVariables>) {

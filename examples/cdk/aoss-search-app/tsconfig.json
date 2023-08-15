@@ -17,11 +17,6 @@
 		"inlineSources": true,
 		"experimentalDecorators": true,
 		"strictPropertyInitialization": false,
-		"baseUrl": "./",
-		"paths": {
-			"@codegen": ["./lib/appsync/codegen/index.ts"],
-			"@codegen/*": ["./lib/appsync/codegen/*"]
-		},
 		"typeRoots": ["./node_modules/@types"]
 	},
 	"exclude": ["node_modules", "cdk.out"]

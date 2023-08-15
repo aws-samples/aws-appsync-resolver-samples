@@ -1,5 +1,5 @@
 import { util, Context, NONERequest, AppSyncIdentityCognito } from '@aws-appsync/utils';
-import { MSG_KIND, Message, PublishMutationVariables, Result } from '@codegen';
+import { MSG_KIND, Message, PublishMutationVariables, Result } from '../codegen';
 
 export function request(ctx: Context<PublishMutationVariables>): NONERequest {
 	const { text, kind, to } = ctx.args.input;

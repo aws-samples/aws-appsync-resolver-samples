@@ -1,5 +1,5 @@
 import { util, Context } from '@aws-appsync/utils';
-import { DeleteTodoMutationVariables } from '@codegen';
+import { DeleteTodoMutationVariables } from '../codegen';
 export { checkErrorsAndRespond as response } from './utils';
 
 export function request(ctx: Context<DeleteTodoMutationVariables>) {

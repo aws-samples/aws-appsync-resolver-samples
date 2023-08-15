@@ -13,7 +13,7 @@
 		"codegen": "cd lib/appsync && npx --package=@aws-amplify/cli amplify codegen"
 	},
 	"devDependencies": {
-		"@aws-appsync/utils": "^1.2.5",
+		"@aws-appsync/utils": "1.2.6",
 		"@graphql-tools/schema": "^10.0.0",
 		"@types/jest": "^29.5.1",
 		"@types/node": "20.1.7",
