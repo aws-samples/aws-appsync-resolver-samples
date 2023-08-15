@@ -38,7 +38,7 @@ export function search<T>(params: Search<T>) {
 		path = '/' + '_search';
 	}
 
-	let query: Record<string, string> = {};
+	const query: Record<string, string> = {};
 	Object.entries(queryString).forEach(([k, v]) => {
 		query[k] = util.urlEncode(`${v}`);
 	});
@@ -72,7 +72,6 @@ export interface IndicesCreate<T = RequestBody> {
 	cluster_manager_timeout?: string;
 	body?: T;
 }
-
 export interface Search<T = RequestBody> {
 	index: string;
 	_source_exclude?: string | string[];
@@ -122,6 +121,7 @@ export interface Search<T = RequestBody> {
 	min_compatible_shard_node?: string;
 	body?: T;
 }
+
 export type FetchOptions = {
 	method: 'PUT' | 'POST' | 'GET' | 'DELETE' | 'PATCH';
 	headers?: Record<string, string>;
@@ -134,11 +134,10 @@ export type FetchOptions = {
  */
 export function fetch(resourcePath: string, options: FetchOptions): HTTPRequest {
 	const { method = 'GET', headers, body, query } = options;
-	let request: HTTPRequest = {
+	const request: HTTPRequest = {
 		resourcePath,
 		method,
 		params: { headers },
-		// version: '2018-05-29',
 	};
 
 	if (body) {

@@ -12,7 +12,7 @@ type Todo {
 }
 ```
 
-The [resolvers](./resolvers/) folder contains the code for the  resolvers.
+The [functions](./functions/) folder contains the code for the AppSync functions, while the [resolvers](./resolvers/) folder contains the code for the pipeline resolvers. The resolvers in this API do not implement any before or after business logic, and the same code is use for all resolvers.
 
 ## Deploy the stack
 
@@ -21,10 +21,10 @@ Deploy this stack by using [template.yaml](./template.yaml) from the Cloudformat
 With the AWS CLI, from this folder:
 
 ```sh
-aws cloudformation deploy --template-file ./template.yaml --stack-name simple-todo-api-app --capabilities CAPABILITY_IAM
+aws cloudformation deploy --template-file ./template.yaml --stack-name demo-todo-api-js --capabilities CAPABILITY_IAM
 ```
 
-Once deployed, you can find your API **SimpleTodoAPI** in the AWS console.
+Once deployed, you can find your API **TodoAPIwithJs** in the AWS console.
 
 ## Delete the stack
 
@@ -33,7 +33,7 @@ To delete your resources: visit the Cloudformation console and delete the stack.
 With the AWS CLI:
 
 ```sh
-aws cloudformation delete-stack --stack-name simple-todo-api-app
+aws cloudformation delete-stack --stack-name demo-todo-api-js
 ```
 
 Note: The DynamoDB table deployed by this template is retained when the stack is deleted.

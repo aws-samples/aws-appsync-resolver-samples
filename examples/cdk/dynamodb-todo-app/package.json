@@ -8,7 +8,9 @@
 		"build": "tsc",
 		"watch": "tsc -w",
 		"test": "jest",
-		"cdk": "cdk"
+		"cdk": "cdk",
+		"prebuild": "$npm_execpath run codegen",
+		"codegen": "cd lib/appsync && npx --package=@aws-amplify/cli amplify codegen"
 	},
 	"devDependencies": {
 		"@aws-appsync/utils": "^1.2.5",
