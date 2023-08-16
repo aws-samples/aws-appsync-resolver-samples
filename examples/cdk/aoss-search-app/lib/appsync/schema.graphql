@@ -1,0 +1,98 @@
+type Todo {
+	id: ID!
+	title: String
+	description: String
+	owner: String
+}
+
+input IndexTodoInput {
+	id: ID!
+	title: String
+	description: String
+	owner: String
+}
+
+type Mutation {
+	createIndex(index: String!): AWSJSON
+	indexTodo(input: IndexTodoInput!): AWSJSON
+}
+
+type Query {
+	getTodo(id: ID!): Todo
+	search(filter: SearchableTodoFilterInput, nextToken: String, limit: Int): SearchableTodoConnection
+}
+
+type SearchableTodoConnection {
+	items: [Todo]!
+	nextToken: String
+	total: Int
+}
+
+input SearchableStringFilterInput {
+	ne: String
+	gt: String
+	lt: String
+	gte: String
+	lte: String
+	eq: String
+	match: String
+	matchPhrase: String
+	matchPhrasePrefix: String
+	multiMatch: String
+	exists: Boolean
+	wildcard: String
+	regexp: String
+	range: [String]
+}
+
+input SearchableIntFilterInput {
+	ne: Int
+	gt: Int
+	lt: Int
+	gte: Int
+	lte: Int
+	eq: Int
+	range: [Int]
+}
+
+input SearchableFloatFilterInput {
+	ne: Float
+	gt: Float
+	lt: Float
+	gte: Float
+	lte: Float
+	eq: Float
+	range: [Float]
+}
+
+input SearchableBooleanFilterInput {
+	eq: Boolean
+	ne: Boolean
+}
+
+input SearchableIDFilterInput {
+	ne: ID
+	gt: ID
+	lt: ID
+	gte: ID
+	lte: ID
+	eq: ID
+	match: ID
+	matchPhrase: ID
+	matchPhrasePrefix: ID
+	multiMatch: ID
+	exists: Boolean
+	wildcard: ID
+	regexp: ID
+	range: [ID]
+}
+
+input SearchableTodoFilterInput {
+	id: SearchableIDFilterInput
+	title: SearchableStringFilterInput
+	description: SearchableStringFilterInput
+	owner: SearchableStringFilterInput
+	and: [SearchableTodoFilterInput]
+	or: [SearchableTodoFilterInput]
+	not: SearchableTodoFilterInput
+}
