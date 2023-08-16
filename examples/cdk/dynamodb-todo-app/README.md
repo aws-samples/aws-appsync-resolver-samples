@@ -34,6 +34,10 @@ lib
 
 The [appsync](./lib/appsync) folder contains schema and the resolver code. This project uses unit resolvers, but you can expand it to use pipeline resolvers if needed.
 
+## Pre-req
+
+Build the `appsync-helper`. See the [README](../constructs/appsync-helper/README.md#init).
+
 ## Init
 
 Install all the dependencies. From the [project folder](./)

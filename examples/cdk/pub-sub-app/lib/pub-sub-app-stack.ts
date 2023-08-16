@@ -3,7 +3,7 @@ import * as appsync from 'aws-cdk-lib/aws-appsync';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { Construct } from 'constructs';
 import path = require('path');
-import { AppSyncHelper } from './appsync-helper';
+import { AppSyncHelper } from 'appsync-helper';
 
 export class PubSubAppStack extends cdk.Stack {
 	constructor(scope: Construct, id: string, props?: cdk.StackProps) {

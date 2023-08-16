@@ -39,6 +39,10 @@ lib
 
 The [appsync](./lib/appsync/) folder contains schema and the resolver code. This project uses unit resolvers, but you can expand it to use pipeline resolvers if needed.
 
+## Pre-req
+
+Build the `appsync-helper`. See the [README](../constructs/appsync-helper/README.md#init).
+
 ## Init
 
 Install all the dependencies. From the [project folder](./)
@@ -100,15 +104,15 @@ mutation Pub {
 In your first tab, you receive the message. Next, try it out as a signed in cognito user. You can head to the Amazon Cognito console to set up a user or sign up a user named `tester` with these commands:
 
 ```sh
-$ CLIENT_ID="<USERPOOLSWEBCLIENTID from output.json file>"
-$ EMAIL="<your email address>"
-$ aws cognito-idp sign-up --client-id $CLIENT_ID --username tester --password TempPassword1234! --user-attributes Name=email,Value=$EMAIL
+CLIENT_ID="<USERPOOLSWEBCLIENTID from output.json file>"
+EMAIL="<your email address>"
+aws cognito-idp sign-up --client-id $CLIENT_ID --username tester --password TempPassword1234! --user-attributes Name=email,Value=$EMAIL
 ```
 
 You will receive a confirmation code at your email address. Then confirm your sign-up:
 
 ```sh
-$ aws cognito-idp confirm-sign-up --client-id $CLIENT_ID --username tester --confirmation-code <CODE>
+aws cognito-idp confirm-sign-up --client-id $CLIENT_ID --username tester --confirmation-code <CODE>
 ```
 
 In the tab where you sent the mutation, log in as the `tester` user. Then send this message to yourself:

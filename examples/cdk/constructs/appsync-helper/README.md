@@ -8,9 +8,26 @@ This library helps you:
 - Automatically builds your TypeScript resolvers
 - Links your resolvers to your data sources
 
+## Init
+
+First install dependencies and build the project:
+
+```sh
+npm install
+npm run build
+npm link
+```
+
 ## Getting started
 
 You can find an example using this construct [here](../../dynamodb-todo-app/).
+
+To use the helper, first install it:
+
+```sh
+npm link appsync-helper -D
+```
+
 Simply pass the path to your main appsync folder in the `AppSyncHelper` props.
 
 ```typescript
