@@ -6,7 +6,8 @@
 	"scripts": {
 		"build": "tsc",
 		"watch": "tsc -w",
-		"test": "jest"
+		"test": "jest",
+		"init": "$npm_execpath install; $npm_execpath run build; $npm_execpath link"
 	},
 	"devDependencies": {
 		"@types/jest": "^29.5.1",

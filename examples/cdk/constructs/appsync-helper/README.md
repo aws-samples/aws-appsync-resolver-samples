@@ -13,9 +13,7 @@ This library helps you:
 First install dependencies and build the project:
 
 ```sh
-npm install
-npm run build
-npm link
+npm run init
 ```
 
 ## Getting started
