@@ -1,4 +1,5 @@
 import { util } from '@aws-appsync/utils';
+import * as ddb from '@aws-appsync/utils/dynamodb';
 
 /**
  * Queries a DynamoDB table and returns items created `today`
@@ -6,14 +7,10 @@ import { util } from '@aws-appsync/utils';
  * @returns {import('@aws-appsync/utils').DynamoDBQueryRequest} the request
  */
 export function request(ctx) {
-  const today = util.time.nowISO8601().substring(0, 10);
-  const query = JSON.parse(
-    util.transform.toDynamoDBConditionExpression({
-      id: { eq: ctx.args.id },
-      createdAt: { beginsWith: today },
-    })
-  );
-  return { operation: 'Query', query };
+	const today = util.time.nowISO8601().substring(0, 10);
+	return ddb.query({
+		query: { id: { eq: ctx.args.id }, createdAt: { beginsWith: today } },
+	});
 }
 
 /**
@@ -22,8 +19,8 @@ export function request(ctx) {
  * @returns {[*]} a flat list of result items
  */
 export function response(ctx) {
-  if (ctx.error) {
-    util.error(ctx.error.message, ctx.error.type);
-  }
-  return ctx.result.items;
+	if (ctx.error) {
+		util.error(ctx.error.message, ctx.error.type);
+	}
+	return ctx.result.items;
 }

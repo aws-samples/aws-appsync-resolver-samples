@@ -1,4 +1,5 @@
 import { util } from '@aws-appsync/utils';
+import * as ddb from '@aws-appsync/utils/dynamodb';
 
 /**
  * Queries a DynamoDB table, limits the number of returned items, and paginates with the provided `nextToken`
@@ -6,13 +7,8 @@ import { util } from '@aws-appsync/utils';
  * @returns {import('@aws-appsync/utils').DynamoDBQueryRequest} the request
  */
 export function request(ctx) {
-  const { id, limit = 20, nextToken } = ctx.args;
-  const query = JSON.parse(
-    util.transform.toDynamoDBConditionExpression({
-      id: { eq: id },
-    })
-  );
-  return { operation: 'Query', query, limit, nextToken };
+	const { id, limit = 20, nextToken } = ctx.args;
+	return ddb.query({ query: { id: { eq: id } }, limit, nextToken });
 }
 
 /**
@@ -21,8 +17,8 @@ export function request(ctx) {
  * @returns {[*]} a flat list of result items
  */
 export function response(ctx) {
-  if (ctx.error) {
-    util.error(ctx.error.message, ctx.error.type);
-  }
-  return ctx.result.items;
+	if (ctx.error) {
+		util.error(ctx.error.message, ctx.error.type);
+	}
+	return ctx.result.items;
 }
