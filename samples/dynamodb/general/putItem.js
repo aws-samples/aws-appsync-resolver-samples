@@ -1,26 +1,10 @@
-import { util } from '@aws-appsync/utils';
+import * as ddb from '@aws-appsync/utils/dynamodb';
 
-/**
- * Puts an item into the DynamoDB table using an auto-generated ID.
- * @param {import('@aws-appsync/utils').Context} ctx the context
- * @returns {import('@aws-appsync/utils').DynamoDBPutItemRequest} the request
- */
 export function request(ctx) {
-	return {
-		operation: 'PutItem',
-		key: util.dynamodb.toMapValues({ id: util.autoId() }),
-		attributeValues: util.dynamodb.toMapValues(ctx.args),
-	};
+	const key = { id: util.autoId() };
+	const item = ctx.args.input;
+	const condition = { id: { attributeExists: false } };
+	return ddb.put({ key, item, condition });
 }
 
-/**
- * Returns the item or throws an error if the operation failed
- * @param {import('@aws-appsync/utils').Context} ctx the context
- * @returns {*} the inserted item
- */
-export function response(ctx) {
-	if (ctx.error) {
-		util.error(ctx.error.message, ctx.error.type);
-	}
-	return ctx.result;
-}
+export const response = (ctx) => ctx.result;
