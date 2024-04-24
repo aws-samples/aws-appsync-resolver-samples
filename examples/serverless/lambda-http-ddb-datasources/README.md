@@ -41,5 +41,7 @@ To delete your resources: visit the Cloudformation console and delete the stack.
 With the AWS CLI:
 
 ```sh
-aws cloudformation delete-stack --stack-name demo-todo-api-js
+aws cloudformation delete-stack --stack-name sls-appsync-example-dev
 ```
+
+Note: The stack name `sls-appsync-example-dev` above assumes the `service` and `environemnt` attributes in `serverless.yml` were not modified.
