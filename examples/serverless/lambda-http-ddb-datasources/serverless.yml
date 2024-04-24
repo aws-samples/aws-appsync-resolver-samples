@@ -1,0 +1,92 @@
+service: sls-appsync-example
+frameworkVersion: '3'
+
+provider:
+  name: aws
+
+resources:
+  Resources:
+    myTodosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: myTodosTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: sls-appsync
+
+  logging:
+    level: ALL
+    retentionInDays: 14
+
+  authentication:
+    type: API_KEY
+
+  apiKeys:
+    - name: myKey
+      expiresAfter: 7d
+
+  dataSources:
+    myTodosTable:
+      type: AMAZON_DYNAMODB
+      description: 'My appsync table'
+      config:
+        tableName: myTodosTable
+    myLambda:
+      type: 'AWS_LAMBDA'
+      config:
+        function:
+          handler: 'lambda/index.handler'
+          runtime: nodejs18.x
+          package:
+            individually: true
+            patterns:
+              - '!./node_modules**' # exclude root files
+              - '!./**'
+              - './lambda/**'
+    myEndpoint:
+      type: 'HTTP'
+      config:
+        endpoint: https://dummyjson.com
+
+  resolvers:
+    Query.listPosts:
+      dataSource: myLambda
+      kind: UNIT
+      code: 'resolvers/lambda/listPosts.js'
+    Query.listUsers:
+      dataSource: myEndpoint
+      kind: UNIT
+      code: 'resolvers/http/listUsers.js'
+    Query.listTodos:
+      dataSource: myTodosTable
+      kind: UNIT
+      code: 'resolvers/ddb/listTodos.js'
+
+    Query.getPost:
+      dataSource: myLambda
+      kind: UNIT
+      code: 'resolvers/lambda/getPost.js'
+    Query.getUser:
+      dataSource: myEndpoint
+      kind: UNIT
+      code: 'resolvers/http/getUser.js'
+    Query.getTodo:
+      dataSource: myTodosTable
+      kind: UNIT
+      code: 'resolvers/ddb/getTodo.js'
+
+    Mutation.addTodo:
+      dataSource: myTodosTable
+      kind: UNIT
+      code: 'resolvers/ddb/addTodo.js'

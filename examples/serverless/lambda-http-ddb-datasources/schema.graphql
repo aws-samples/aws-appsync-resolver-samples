@@ -1,0 +1,43 @@
+schema {
+	query: Query
+	mutation: Mutation
+}
+
+type Query {
+	listPosts: [Post]
+	listUsers: [User]
+	listTodos: [Todo]
+	getPost(id: ID!): Post
+	getUser(id: ID!): User
+	getTodo(id: ID!): Todo
+}
+
+type Mutation {
+	addTodo(input: AddTodoInput): Todo
+}
+
+# Lambda Datasource
+type Post {
+	id: ID!
+	title: String
+	body: String
+}
+
+# HTTP Datasource
+type User {
+	id: ID!
+	firstName: String
+	lastName: String
+}
+
+# DynamoDB Datasource\
+type Todo {
+	id: ID!
+	title: String
+	completed: Boolean!
+}
+
+input AddTodoInput {
+	title: String
+	completed: Boolean
+}

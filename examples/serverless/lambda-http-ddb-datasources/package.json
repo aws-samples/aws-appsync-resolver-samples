@@ -1,0 +1,5 @@
+{
+	"dependencies": {
+		"serverless-appsync-plugin": "^2.7.0"
+	}
+}
