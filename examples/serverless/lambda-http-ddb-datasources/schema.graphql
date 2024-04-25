@@ -16,21 +16,18 @@ type Mutation {
 	addTodo(input: AddTodoInput): Todo
 }
 
-# Lambda Datasource
 type Post {
 	id: ID!
 	title: String
 	body: String
 }
 
-# HTTP Datasource
 type User {
 	id: ID!
 	firstName: String
 	lastName: String
 }
 
-# DynamoDB Datasource\
 type Todo {
 	id: ID!
 	title: String
