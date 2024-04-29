@@ -1,6 +1,5 @@
 export function request() {
 	return {
-		version: '2018-05-29',
 		method: 'GET',
 		resourcePath: '/users',
 	};
