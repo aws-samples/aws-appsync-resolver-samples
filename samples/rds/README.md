@@ -54,6 +54,8 @@ export function request(ctx) {
 
 This will generate a query and automatically map dynamic values to placeholders. This approach is safer than writing queries directly and helps prevent potential SQL Injection vulnerabilities.
 
+In your logs, you see the following request.
+
 ```JSON
 {
   "statements": [
@@ -102,6 +104,35 @@ export function request(ctx) {
   // Generates statement:
   // SELECT * FROM "private"."album" as "al"
   return pg(select({table: {al: 'private.album'}));
+}
+
+```
+
+Handling the return
+
+You can return a list of items using the `toJsonObject` helper:
+
+```javascript
+import { toJsonObject } from '@aws-appsync/utils/rds'
+export function response(ctx) {
+  const { error, result } = ctx
+  if (error) {
+    return util.appendError(error.message, error.type, result)
+  }
+  return toJsonObject(result)[0]
+}
+```
+
+To return a specific item, simply select an index from the array:
+
+```javascript
+import { toJsonObject } from '@aws-appsync/utils/rds'
+export function response(ctx) {
+  const { error, result } = ctx
+  if (error) {
+    return util.appendError(error.message, error.type, result)
+  }
+  return toJsonObject(result)[0][0]
 }
 ```
 
