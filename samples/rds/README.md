@@ -247,23 +247,20 @@ export function request(ctx) {
 
 You can use the following operators to compare values:
 
-> NO UPDATE
-
-```table
-Operator  Description  Possible value types
-eq  Equal  number, string, boolean
-ne  Not equal  number, string, boolean
-le  Less than or equal  number, string
-lt  Less than  number, string
-ge  Greater than or equal  number, string
-gt  Greater than  number, string
-contains  Like  string
-notContains  Not like  string
-beginsWith  Starts with prefix  string
-between  Between two values  number, string
-attributeExists  The attribute is not null  number, string, boolean
-size  checks the length of the element  string
-```
+| Operator | Description | Possible values |
+| --------------- | --------------- | --------------- |
+| eq |  Equal | number, string, boolean |
+| ne | Not equal |  number, string, boolean |
+| le | Less than or equal |  number, string |
+| lt | Less than |  number, string |
+| ge | Greater than or equal |  number, string |
+| gt | Greater than |  number, string |
+| contains | Like |  string |
+| notContains | Not like |  string |
+| beginsWith | Starts with prefix | string |
+| between | Between two values |  number, string |
+| attributeExists | The attribute is not null |  number, string, boolean |
+| size | checks the length of the element |  string |
 
 You can use the `sql` helper to write custom conditions:
 
