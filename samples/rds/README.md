@@ -78,7 +78,7 @@ In its basic form, you can specify the table you want to query:
 import { select, createPgStatement as pg } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   // Generates statement: 
-  // "SELECT * FROM "persons"
+  // "SELECT * FROM "album"
   return pg(select({table: 'album'}));
 }
 ```
@@ -89,7 +89,7 @@ Note that you can also specify the schema in your table identifier:
 import { select, createPgStatement as pg } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   // Generates statement:
-  // SELECT * FROM "private"."persons"
+  // SELECT * FROM "private"."album"
   return pg(select({table: 'private.album'}));
 }
 ```
@@ -100,7 +100,7 @@ And you can specify an alias as well
 import { select, createPgStatement as pg } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   // Generates statement:
-  // SELECT * FROM "private"."persons" as "people"
+  // SELECT * FROM "private"."album" as "al"
   return pg(select({table: {al: 'private.album'}));
 }
 ```
@@ -114,7 +114,7 @@ import { select, createPgStatement as pg } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   // Generates statement:
   // SELECT "id", "name"
-  // FROM "persons"
+  // FROM "album"
   return pg(select({
     table: 'album',
     columns: ['album_id', 'title']
@@ -128,8 +128,8 @@ You can specify a column's table as well:
 import { select, createPgStatement as pg } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   // Generates statement: 
-  // SELECT "id", "persons"."name"
-  // FROM "persons"
+  // SELECT "id", "album"."name"
+  // FROM "album"
   return pg(select({
     table: 'album',
     columns: ['album_id', 'album.title']
@@ -143,8 +143,8 @@ You can use aliases
 import { select, createPgStatement as pg } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   // Generates statement: 
-  // SELECT "id", "persons"."name" as "theName"
-  // FROM "persons"
+  // SELECT "id", "album"."title" as "name"
+  // FROM "album"
   return pg(select({
     table: 'album',
     columns: ['album_id', { name: 'album.title' }]
@@ -161,7 +161,7 @@ import { select, createPgStatement as pg } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   // Generates statement: 
   // SELECT "id", "name"
-  // FROM "persons"
+  // FROM "album"
   // LIMIT :limit
   // OFFSET :offset
   return pg(select({ table: 'album', limit: 10, offset: 40 }));
@@ -351,8 +351,8 @@ You can leverage aliases in your queries. Aliases are supported on the `table`, 
 import { select, createPgStatement as pg } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   return pg(select({
-    table : {people: persons },
-    columns: ['id', {firstAndLastName: 'name'}]
+    table : {record: 'album' },
+    columns: ['id', {name: 'title'}]
   }));
 }
 ```
@@ -404,9 +404,9 @@ To insert an item, specify the table and then pass in your object of values. The
 import { insert, createMySQLStatement as mysql } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   // Generates statement:
-  // INSERT INTO `persons`(`name`)
-  // VALUES(:NAME)
-  return mysql(insert({ table: 'persons', values: ctx.args.input }))
+  // INSERT INTO `album`(`title`, `artist_id`)
+  // VALUES(:title, :artist_id)
+  return mysql(insert({ table: 'album', values: ctx.args.input }))
 }
 ```
 
@@ -418,21 +418,21 @@ You can combine an insert followed by a select to retrieve your inserted row:
 import { insert, select, createMySQLStatement as mysql } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   const { input: values } = ctx.args;
-  const insertStatement = insert({  table: 'persons', values });
+  const insertStatement = insert({  table: 'album', values });
   const selectStatement = select({
-    table: 'persons',
+    table: 'album',
     columns: '*',
     where: { id: { eq: values.id } },
     limit: 1,
   });
 
   // Generates statement:
-  // INSERT INTO `persons`(`name`)
-  // VALUES(:NAME)
+  // INSERT INTO `album`(`album_id`, `title`)
+  // VALUES(:ALBUM_ID, :TITLE)
   // and
   // SELECT *
-  // FROM `persons`
-  // WHERE `id` = :ID
+  // FROM `album`
+  // WHERE `album_id` = :ALBUM_ID
   return mysql(insertStatement, selectStatement)
 }
 ```
@@ -448,15 +448,10 @@ import { insert, createPgStatement as pg } from '@aws-appsync/utils/rds';
 export function request(ctx) {
   const { input: values } = ctx.args;
   const statement = insert({
-    table: 'persons',
+    table: 'album',
     values,
     returning: '*'
   });
-
-  // Generates statement:
-  // INSERT INTO "persons"("name")
-  // VALUES(:NAME)
-  // RETURNING *
   return pg(statement)
 }
 ```
