@@ -1,10 +1,12 @@
-type Post {
+type Todo {
+	userId: Int
 	id: ID
-	tile: String
+	title: String
+	completed: Boolean
 }
 type Query {
-	getPost(id: ID!): Post
-	listPosts: [Post]
+	getTodo(id: ID!): Todo
+	listTodos: [Todo]
 }
 
 schema {

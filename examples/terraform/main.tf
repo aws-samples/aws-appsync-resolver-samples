@@ -1,7 +1,7 @@
 // Create AppSync API
 resource "aws_appsync_graphql_api" "appsync_api" {
   authentication_type = "API_KEY"
-  name                = "WBD Proxy API"
+  name                = "AppSync Terraform API"
 
   schema = file("schema.graphql")
 }
@@ -13,40 +13,35 @@ resource "aws_appsync_api_key" "appsync_api_key" {
 }
 
 // Enable caching
-# resource "aws_appsync_api_cache" "wbd_proxy_cache_config" {
+# resource "aws_appsync_api_cache" "cache_config" {
 #   api_id               = aws_appsync_graphql_api.appsync_api.id
 #   api_caching_behavior = "PER_RESOLVER_CACHING"
 #   type                 = "LARGE"
 #   ttl                  = 3600
 # }
 
-resource "aws_lambda_function" "appsync_datasource" {
-  filename         = "lambda_function.zip"
-  function_name    = "posts_lambda"
-  role             = aws_iam_role.lambda_role.arn
-  handler          = "index.handler"
-  runtime          = "nodejs20.x"
-}
 
-resource "aws_appsync_datasource" "lambda_datasource" {
+
+resource "aws_appsync_datasource" "todo_http_datasource" {
   api_id = aws_appsync_graphql_api.appsync_api.id
   name   = "lambdaPosts"
-  type   = ""
+  type   = "HTTP"
 
-  # lambda_config {
-  #   function_arn = 
-  # }
+  http_config {
+    endpoint = "https://jsonplaceholder.typicode.com"
+  }
 }
 
-resource "aws_appsync_resolver" "listPosts" {
+
+resource "aws_appsync_resolver" "listTodos" {
   api_id = aws_appsync_graphql_api.appsync_api.id
   type   = "Query"
-  field  = "listPosts"
+  field  = "listTodos"
 
-  data_source = aws_appsync_datasource.lambda_datasource.name
+  data_source = aws_appsync_datasource.todo_http_datasource.name
   kind        = "UNIT"
 
-  code = file("resolvers/listPosts.js")
+  code = file("resolvers/listTodos.js")
 
   runtime {
     name            = "APPSYNC_JS"
@@ -55,15 +50,15 @@ resource "aws_appsync_resolver" "listPosts" {
 }
 
 
-resource "aws_appsync_resolver" "getPost" {
+resource "aws_appsync_resolver" "getTodo" {
   api_id = aws_appsync_graphql_api.appsync_api.id
   type   = "Query"
-  field  = "getPost"
+  field  = "getTodo"
 
-  data_source = aws_appsync_datasource.lambda_datasource.name
+  data_source = aws_appsync_datasource.todo_http_datasource.name
   kind        = "UNIT"
 
-  code = file("resolvers/getPost.js")
+  code = file("resolvers/getTodo.js")
 
   runtime {
     name            = "APPSYNC_JS"
