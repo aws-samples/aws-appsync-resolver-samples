@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://docs.aws.amazon.com/appsync/latest/devguide/quickstart.html">
     <img src="./appsync-logo-600.png" height="96" />
-    <h1 align="center">AWS AppSync Samples</h1>
+    <h1 align="center">AWS AppSync GraphQL Samples</h1>
   </a>
 </p>
 
@@ -31,17 +31,17 @@ JavaScript resolvers allow you to express your business logic using a simple int
 
 ```js
 export function request(ctx) {
-  return {}
+	return {};
 }
 
 export function response(ctx) {
-  return ctx.result
+	return ctx.result;
 }
 ```
 
 ## Content
 
-- [examples](./samples/): Contains AWS Cloudformation and AWS CDK sample APIs
+- [examples](./samples/): Contains AWS Cloudformation, AWS CDK and other IaC platforms sample APIs
 - [samples](./samples/) Contains AppSync resolver and functions templates that you can use in your own APIs
 
 ## Features
@@ -71,5 +71,6 @@ You can also work from the console and edit your code directly the console edito
 
 If you have any questions, feedback, or need assistance, please don't hesitate to open an issue on this repository. For general inquiries about AppSync, please visit our [Community repository](https://github.com/aws/aws-appsync-community)
 
-----
+---
+
 This library is licensed under the MIT-0 License. See the LICENSE file.
