@@ -1,9 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 export function request(ctx) {
-	return fetch(`/todos/${ctx.args.id}`, {
-		method: 'GET',
-	});
+	return fetch(`/todos/${ctx.args.id}`);
 }
 
 export function response(ctx) {
