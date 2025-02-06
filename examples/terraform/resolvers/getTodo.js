@@ -15,8 +15,8 @@ export function response(ctx) {
 }
 
 function fetch(resourcePath, options) {
-	const { method = 'GET', headers, body: _body, query } = options;
-	const body = typeof _body === 'object' ? JSON.stringify(_body) : _body;
+	const { method = 'GET', headers, body, query } = options;
+
 	return {
 		resourcePath,
 		method,
