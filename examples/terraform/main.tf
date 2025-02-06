@@ -9,7 +9,9 @@ resource "aws_appsync_graphql_api" "appsync_api" {
 // Create API Key
 resource "aws_appsync_api_key" "appsync_api_key" {
   api_id  = aws_appsync_graphql_api.appsync_api.id
-  expires = "2025-05-01T04:00:00Z"
+  
+  // Set the expiration 7 days from now - https://developer.hashicorp.com/terraform/language/functions/timeadd
+  expires = timeadd(timestamp(), "168h")
 }
 
 // Add HTTP Datasource
@@ -19,7 +21,7 @@ resource "aws_appsync_datasource" "todo_http_datasource" {
   type   = "HTTP"
 
   http_config {
-    endpoint = "https://jsonplaceholder.typicode.com"
+    endpoint = "<http endpoint>" // Replace this with actual endpoint. For example, https://jsonplaceholder.typicode.com
   }
 }
 
