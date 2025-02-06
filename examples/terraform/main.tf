@@ -12,16 +12,7 @@ resource "aws_appsync_api_key" "appsync_api_key" {
   expires = "2025-05-01T04:00:00Z"
 }
 
-// Enable caching
-# resource "aws_appsync_api_cache" "cache_config" {
-#   api_id               = aws_appsync_graphql_api.appsync_api.id
-#   api_caching_behavior = "PER_RESOLVER_CACHING"
-#   type                 = "LARGE"
-#   ttl                  = 3600
-# }
-
-
-
+// Add HTTP Datasource
 resource "aws_appsync_datasource" "todo_http_datasource" {
   api_id = aws_appsync_graphql_api.appsync_api.id
   name   = "lambdaPosts"
@@ -32,7 +23,7 @@ resource "aws_appsync_datasource" "todo_http_datasource" {
   }
 }
 
-
+// Add resolver for Query.listTodos
 resource "aws_appsync_resolver" "listTodos" {
   api_id = aws_appsync_graphql_api.appsync_api.id
   type   = "Query"
@@ -49,7 +40,7 @@ resource "aws_appsync_resolver" "listTodos" {
   }
 }
 
-
+// Add resolver for Query.getTodo
 resource "aws_appsync_resolver" "getTodo" {
   api_id = aws_appsync_graphql_api.appsync_api.id
   type   = "Query"
@@ -68,3 +59,12 @@ resource "aws_appsync_resolver" "getTodo" {
     ttl = 3600
   }
 }
+
+
+// To Enable caching uncomment the following code block
+# resource "aws_appsync_api_cache" "cache_config" {
+#   api_id               = aws_appsync_graphql_api.appsync_api.id
+#   api_caching_behavior = "PER_RESOLVER_CACHING"
+#   type                 = "LARGE"
+#   ttl                  = 3600
+# }
