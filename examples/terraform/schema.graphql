@@ -1,0 +1,14 @@
+type Todo {
+	userId: Int
+	id: ID
+	title: String
+	completed: Boolean
+}
+type Query {
+	getTodo(id: ID!): Todo
+	listTodos: [Todo]
+}
+
+schema {
+	query: Query
+}
